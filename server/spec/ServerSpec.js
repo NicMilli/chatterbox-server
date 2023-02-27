@@ -51,7 +51,7 @@ describe('Node Server Request Listener Function', function() {
 
     // Testing for a newline isn't a valid test
     // TODO: Replace with with a valid test
-    // expect(res._data).to.equal(JSON.stringify('\n'));
+    expect(res._data).to.equal(JSON.stringify([stubMsg]));
     expect(res._ended).to.equal(true);
   });
 
@@ -89,6 +89,33 @@ describe('Node Server Request Listener Function', function() {
 
     expect(res._responseCode).to.equal(404);
     expect(res._ended).to.equal(true);
+  });
+
+  it('Should return an error for an empty string input', function() {
+    var stubMsg = {
+      username: '',
+      text: 'Test empty'
+    };
+
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(400);
+    expect(res._data).to.equal('invalid input');
+    //expect(res._responseCode).to.throwError('Invalid status code');
+  });
+
+  it('Should return access-control-allow-methods for an OPTIONS request', function () {
+
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    expect(res._headers['access-control-allow-methods']).to.equal('GET, POST, PUT, DELETE, OPTIONS');
   });
 
 });
